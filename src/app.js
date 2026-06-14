@@ -29,7 +29,7 @@ app.post("/signup", async (req, res) => {
 app.get("/feed" , async (req,res)=>{
   try{  
     const user = await User.find({});
-    console.log(user)
+    // console.log(user)
     res.send(user);
 
   }catch(err){
@@ -41,7 +41,7 @@ app.get("/getUser" , async (req,res)=>{
   const emailId = req.body.emailId;
   try{  
     const user = await User.findOne({emailId : emailId});
-    console.log(user)  
+    // console.log(user)  
     if(!user){
       res.status(404).send("User not found");
     }else{
@@ -65,6 +65,20 @@ app.delete("/deleteUser" , async (req , res)=>{
     res.send("User deleted successfully");
   } catch (error) {
     res.status(400).send("Error in deleting the user :", error.message);
+    
+  }
+})
+
+app.patch("/updateUser" , async(req,res)=>{
+  try {
+    const userId = req.body.userId;
+    const data = req.body;
+    const user = await User.findByIdAndUpdate({_id : userId} , data , {returnDocument : "before"});
+    console.log(user)
+    res.send("User updated successfully");
+    
+  } catch (error) {
+    res.status(400).send("Error in updating the user :", error.message);
     
   }
 })
