@@ -55,6 +55,20 @@ app.get("/getUser" , async (req,res)=>{
   }
 })
 
+app.delete("/deleteUser" , async (req , res)=>{
+  // const emailId = req.body.emailId;
+  const userId = req.body.userId
+
+  try {
+    // const user = await User.deleteOne({emailId : emailId})
+    const user = await User.findByIdAndDelete(userId);
+    res.send("User deleted successfully");
+  } catch (error) {
+    res.status(400).send("Error in deleting the user :", error.message);
+    
+  }
+})
+
 
 
 
