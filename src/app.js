@@ -4,15 +4,34 @@ const { connectDB } = require("./config/database");
 
 const User = require("./models/user");
 
-
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  const {firstName , lastName , emailId , password , age , gender , photoUrl , about , skills} = req.body;
- 
+  const {
+    firstName,
+    lastName,
+    emailId,
+    password,
+    age,
+    gender,
+    photoUrl,
+    about,
+    skills,
+  } = req.body;
+
   console.log(req.body);
   try {
-    const user = new User({firstName , lastName , emailId , password , age , gender , photoUrl , about , skills});
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password,
+      age,
+      gender,
+      photoUrl,
+      about,
+      skills,
+    });
     await user.save();
     res.send("User created successfully");
   } catch (err) {
@@ -20,38 +39,34 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.get("/feed" , async (req,res)=>{
-  try{  
+app.get("/feed", async (req, res) => {
+  try {
     const user = await User.find({});
     // console.log(user)
     res.send(user);
-
-  }catch(err){
+  } catch (err) {
     res.status(400).send("Error in fetching the user :", err.message);
   }
-})
+});
 
-app.get("/getUser" , async (req,res)=>{
+app.get("/getUser", async (req, res) => {
   const emailId = req.body.emailId;
-  try{  
-    const user = await User.findOne({emailId : emailId});
-    // console.log(user)  
-    if(!user){
+  try {
+    const user = await User.findOne({ emailId: emailId });
+    // console.log(user)
+    if (!user) {
       res.status(404).send("User not found");
-    }else{
-        res.send(user);
-
+    } else {
+      res.send(user);
     }
-  
-
-  }catch(err){
+  } catch (err) {
     res.status(400).send("Error in fetching the user :", err.message);
   }
-})
+});
 
-app.delete("/deleteUser" , async (req , res)=>{
+app.delete("/deleteUser", async (req, res) => {
   // const emailId = req.body.emailId;
-  const userId = req.body.userId
+  const userId = req.body.userId;
 
   try {
     // const user = await User.deleteOne({emailId : emailId})
@@ -59,30 +74,44 @@ app.delete("/deleteUser" , async (req , res)=>{
     res.send("User deleted successfully");
   } catch (error) {
     res.status(400).send("Error in deleting the user :", error.message);
-    
   }
-})
+});
 
-app.patch("/updateUser" , async(req,res)=>{
+app.patch("/updateUser/:userId", async (req, res) => {
+  const userId = req.params?.userId;
+  const data = req.body;
+
   try {
-    const userId = req.body.userId;
-    const data = req.body;
-    const user = await User.findByIdAndUpdate({_id : userId} , data , {returnDocument : "before" , runValidators : true});
-    console.log(user)
+    const ALLOWEDUPDATES = [
+      "firstName",
+      "lastName",
+      "password",
+      "age",
+      "gender",
+      "photoUrl",
+      "about",
+      "skills",
+    ];
+    const isUpdateAllowed = Object.keys(data).every((k) =>
+      ALLOWEDUPDATES.includes(k),
+    );
+
+    if (!isUpdateAllowed) {
+      throw new Error("updates are not allowed");
+    }
+    if(data?.skills.length > 5){
+      throw new Error("skills should not be more than 5");
+    }
+    const user = await User.findByIdAndUpdate({ _id: userId }, data, {
+      returnDocument: "before",
+      runValidators: true,
+    });
+    console.log(user);
     res.send("User updated successfully");
-    
   } catch (error) {
     res.status(400).send("Error in updating the user :" + error.message);
-    
   }
-})
-
-
-
-
-
-
-
+});
 
 connectDB()
   .then(() => {
