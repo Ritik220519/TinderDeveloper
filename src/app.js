@@ -8,21 +8,15 @@ const User = require("./models/user");
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
-  const {firstName , lastName , emailId , password , age} = req.body;
+  const {firstName , lastName , emailId , password , age , gender , photoUrl , about , skills} = req.body;
  
   console.log(req.body);
   try {
-    const user = new User({
-      firstName: firstName,
-      lastName: lastName,
-      emailId: emailId,
-      password: password,
-      age: age
-    });
+    const user = new User({firstName , lastName , emailId , password , age , gender , photoUrl , about , skills});
     await user.save();
     res.send("User created successfully");
-  } catch (error) {
-    res.status(400).send("Error in saving the user :", error.message);
+  } catch (err) {
+    res.status(400).send("Error in saving the user :" + err.message);
   }
 });
 
@@ -73,12 +67,12 @@ app.patch("/updateUser" , async(req,res)=>{
   try {
     const userId = req.body.userId;
     const data = req.body;
-    const user = await User.findByIdAndUpdate({_id : userId} , data , {returnDocument : "before"});
+    const user = await User.findByIdAndUpdate({_id : userId} , data , {returnDocument : "before" , runValidators : true});
     console.log(user)
     res.send("User updated successfully");
     
   } catch (error) {
-    res.status(400).send("Error in updating the user :", error.message);
+    res.status(400).send("Error in updating the user :" + error.message);
     
   }
 })
